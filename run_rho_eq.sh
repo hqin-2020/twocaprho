@@ -50,7 +50,7 @@ for Delta in ${Deltaarray[@]}; do
 #SBATCH --mem=8G
 
 module load julia/1.7.3
-srun julia /project/lhansen/twocapsim/$julia_name  --Delta ${Delta} --fraction ${fraction} --gamma ${gamma} --rho ${rho} --symmetric ${symmetric} --alpha_z_tilde_ex ${alpha_z_tilde_ex} --dataname ${dataname} 
+srun julia /project/lhansen/twocaprho/$julia_name  --Delta ${Delta} --fraction ${fraction} --gamma ${gamma} --rho ${rho} --symmetric ${symmetric} --alpha_z_tilde_ex ${alpha_z_tilde_ex} --dataname ${dataname} 
 EOF
                 count=$(($count + 1))
                 sbatch ./bash/${action_name}/Delta_${Delta}_frac_${fraction}/rho_${rho}_gamma_${gamma}.sh
