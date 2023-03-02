@@ -523,18 +523,39 @@ function dstar_twocapitals!(d1::Array{Float64,2},
     for i=1:IJ
         p, vr = pii[i], Vr[i]
 
-        function f(d1x)
-            d2_temp = (delta*(1-p)*exp.(V[i]*(rho-1))/(1-phi1*d1x)/(1-p-Vr[i])).^(1/rho) - (1-p)*(A1-d1x);
-            d2x = A2 - d2_temp/p
-            return delta*p*exp.(V[i]*(rho-1))*((A1-d1x)*(1-p) + (A2-d2x)*p).^(-rho)  - (p+Vr[i])*(1-phi2*d2x)
-        end
+        if rho == 1.0
+            #============== Quadratic equation for 1st capital ====================#
+            aa1 = (1-p) + (phi1/phi2)*(p^2/(1-p))*((1-p)-vr)/(p+vr);
+            aux1 = A1*(1-p) + A2*p - (p*vr)/(phi2*(1-p)*(p + vr));
 
-        x0 = 0.03;
-        # d1_root = find_zero(f, x0, Roots.Order1(), maxiters = 1000000, xatol = 10e-6, xrtol = 10e-6, atol = 10e-6, rtol = 10e-6, strict=false);
-        # d1_root = find_zero(f, x0, Roots.Order1(), atol = 10e-6, rtol = 10e-6, maxiters = 1000000, strict=false);
-        d1_root = find_zero(f, x0, Roots.Order1(), maxiters = 1000000, strict = true);
-        d2y = (delta*(1-p)*exp.(V[i]*(rho-1))/(1-phi1*d1_root)/(1-p-Vr[i])).^(1/rho) - (1-p)*(A1-d1_root);
-        d2_root = A2 - d2y/p;
+            bb1 = aa1 + phi1*aux1;
+            cc1 = aux1 - model.k1.delta*(1-p)/((1-p)-vr);
+
+            sqrt_test1 = bb1^2 - 4*(phi1*aa1)*cc1;
+            event_A = (sqrt_test1 >= 0);
+
+            d1[i] = event_A * (bb1 - sqrt(event_A*sqrt_test1))/(2*phi1*aa1);
+
+            #================= Expression for 2st capital ========================#
+            aux2 = (p/(1-p))*((1-p)-vr)/(p+vr)
+            d2[i] = event_A * ((1-(1-phi1*d1[i])*aux2)/phi2);
+
+        else
+            function f(d1x)
+                d2_temp = (delta*(1-p)*exp.(V[i]*(rho-1))/(1-phi1*d1x)/(1-p-Vr[i])).^(1/rho) - (1-p)*(A1-d1x);
+                d2x = A2 - d2_temp/p
+                return delta*p*exp.(V[i]*(rho-1))*((A1-d1x)*(1-p) + (A2-d2x)*p).^(-rho)  - (p+Vr[i])*(1-phi2*d2x)
+            end
+
+            x0 = 0.03;
+            # d1_root = find_zero(f, x0, Roots.Order1(), maxiters = 1000000, xatol = 10e-6, xrtol = 10e-6, atol = 10e-6, rtol = 10e-6, strict=false);
+            # d1_root = find_zero(f, x0, Roots.Order1(), atol = 10e-6, rtol = 10e-6, maxiters = 1000000, strict=false);
+            d1_root = find_zero(f, x0, Roots.Order1(), maxiters = 1000000, strict = true);
+            d2y = (delta*(1-p)*exp.(V[i]*(rho-1))/(1-phi1*d1_root)/(1-p-Vr[i])).^(1/rho) - (1-p)*(A1-d1_root);
+            d2_root = A2 - d2y/p;
+            d1[i] = d1_root;
+            d2[i] = d2_root;
+        end
         # d1_root = try
         #     find_zero(f, x0, Roots.Order1());
         # catch lsp
@@ -552,8 +573,6 @@ function dstar_twocapitals!(d1::Array{Float64,2},
         # if d2_root === nothing
         #     d2_root = rand(Uniform(0.027,0.037));
         # end
-        d1[i] = d1_root;
-        d2[i] = d2_root;
         
         # d1old = copy(d1[i]);
         # d2old = copy(d2[i]);
@@ -709,9 +728,15 @@ function create_uu!(uu::Array{Float64, 1},
         pp, z = pii[i], zz[i]
         c = (1-pp)*(A1 - d1[i]) + pp*(A2 - d2[i]);
         penalty_term = (h1[i]^2 + h2[i]^2 + hz[i]^2)/(2*ell);
-
-        uu[i] = (delta/(1-rho)*(c^(1-rho)*exp.((rho-1)*V[i])-1) - penalty_term -
+        
+        if rho == 1.0
+            uu[i] = (delta*log(c) - penalty_term -
             (ell_nom/2)*(xi0 + 2*xi1*z + xi2*z^2) + mu_1[i]);
+        else
+            uu[i] = (delta/(1-rho)*(c^(1-rho)*exp.((rho-1)*V[i])-1) - penalty_term -
+                (ell_nom/2)*(xi0 + 2*xi1*z + xi2*z^2) + mu_1[i]);
+        end
+        
     end
 
     nothing
@@ -914,7 +939,11 @@ function value_function_twocapitals(ell::Float64,
       # HAMILTON-JACOBI-BELLMAN EQUATION
       #========================================================================#
       mu_z = -kappa_hat*zz;
-      I_delta = sparse((1/Delta)*I, IJ, IJ);
+      if rho == 1.0
+        I_delta = sparse((1/Delta + delta)*I, IJ, IJ);
+      else
+        I_delta = sparse((1/Delta)*I, IJ, IJ);
+      end
 
 
       for n=1:maxit

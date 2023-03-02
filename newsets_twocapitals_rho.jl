@@ -287,6 +287,7 @@ zmin_opt = -zmax_opt;
 # (4) Iteration parameters
 maxit = 50000;        # maximum number of iterations in the HJB loop
 crit  = 10e-6;      # criterion HJB loop
+crit  = 10e-9;
 # Delta = 1000.;      # delta in HJB algorithm
 
 
