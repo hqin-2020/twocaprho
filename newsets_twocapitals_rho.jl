@@ -209,7 +209,8 @@ elseif symmetric_returns == 0
 
     if state_dependent_xi == 0
         # Constant tilting function
-        scale = 1.307
+        scale = 1.307;
+        scale = 1.754;
         alpha_k2_hat = alpha_k1_hat = alpha_k_hat;
 
         # Worrisome model
