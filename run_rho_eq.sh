@@ -14,7 +14,7 @@ rhoarray=(0.7 0.8 0.9 1.00001 1.1 1.2 1.3 1.4 1.5)
 
 gammaarray=(1.01 2.0 3.0 4.0 5.0 6.0 7.0 8.0)
 
-symmetric=1
+symmetric=0
 alpha_z_tilde_ex=0.0
 
 for Delta in ${Deltaarray[@]}; do
