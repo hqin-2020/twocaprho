@@ -7,6 +7,7 @@ fractionarray=(0.0)
 actiontime=1
 
 julia_name="newsets_twocapitals_rho.jl"
+python_name="plots_rho_3d.py"
 
 rhoarray=(0.7 0.8 0.9 1.00001 1.1 1.2 1.3 1.4 1.5)
 # rhoarray=(1.00001)
@@ -50,7 +51,9 @@ for Delta in ${Deltaarray[@]}; do
 #SBATCH --mem=8G
 
 module load julia/1.7.3
+module load python/anaconda-2020.11
 srun julia /project/lhansen/twocaprho/$julia_name  --Delta ${Delta} --fraction ${fraction} --gamma ${gamma} --rho ${rho} --symmetric ${symmetric} --alpha_z_tilde_ex ${alpha_z_tilde_ex} --dataname ${dataname} 
+python3 /project/lhansen/twocaprho/$python_name  --Delta ${Delta} --fraction ${fraction} --gamma ${gamma} --rho ${rho} --symmetric ${symmetric} --dataname ${dataname}
 EOF
                 count=$(($count + 1))
                 sbatch ./bash/${action_name}/Delta_${Delta}_frac_${fraction}/rho_${rho}_gamma_${gamma}.sh
