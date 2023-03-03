@@ -27,7 +27,7 @@ for Delta in ${Deltaarray[@]}; do
             for gamma in "${gammaarray[@]}"; do
                     count=0
 
-                    action_name="Standard_grid_asym_Delta_300_scale_1754_tol_18"
+                    action_name="Standard_grid_asym_Delta_300_scale_1754_tol_0"
 
                     dataname="${action_name}_${Delta}_frac_${fraction}"
 
