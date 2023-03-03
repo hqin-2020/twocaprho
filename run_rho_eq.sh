@@ -10,8 +10,8 @@ actiontime=1
 julia_name="newsets_twocapitals_rho.jl"
 python_name="plot_rho_3d.py"
 
-rhoarray=(0.7 0.8 0.9 1.00001 1.1 1.2 1.3 1.4 1.5)
-rhoarray=(0.9 1.00001 1.1)
+rhoarray=(0.6 0.7 0.8 0.9 1.00001 1.1 1.2 1.3 1.4 1.5)
+# rhoarray=(0.9 1.00001 1.1)
 # rhoarray=(1.5)
 # rhoarray=(1.0)
 # rhoarray=(1.00001)
@@ -27,7 +27,7 @@ for Delta in ${Deltaarray[@]}; do
             for gamma in "${gammaarray[@]}"; do
                     count=0
 
-                    action_name="Standard_grid_asym_small_Delta_d_test"
+                    action_name="Standard_grid_asym_Delta_300_scale_1754_tol_18"
 
                     dataname="${action_name}_${Delta}_frac_${fraction}"
 
